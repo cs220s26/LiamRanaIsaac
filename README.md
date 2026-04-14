@@ -1,6 +1,6 @@
-##DevOps Final Project
+## DevOps Final Project
 
-#Contributors:
+# Contributors:
 
 * Liam Kerr
 * Rana Yum
