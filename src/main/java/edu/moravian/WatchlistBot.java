@@ -1,0 +1,98 @@
+package edu.moravian;
+
+import edu.moravian.exceptions.TokenNotFound;
+import edu.moravian.process.*;
+import edu.moravian.process.processes.AddMediaProcess;
+import edu.moravian.process.processes.SuggestMediaProcess;
+import edu.moravian.process.processes.ViewMediaProcess;
+import edu.moravian.watchlist.RedisStorage;
+import edu.moravian.watchlist.WatchlistApp;
+import edu.moravian.watchlist.WatchlistAppStorage;
+import io.github.cdimascio.dotenv.Dotenv;
+import io.github.cdimascio.dotenv.DotenvException;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+
+public class WatchlistBot
+{
+    public static void main(String[] args)
+    {
+        Dotenv dotenv;
+        try{
+            dotenv = Dotenv.load();
+            String token = dotenv.get("DISCORD_TOKEN");
+            if(token == null){
+                throw new TokenNotFound("The DISCORD_TOKEN was not created properly");
+            }
+            JDA api = JDABuilder.createDefault(token).enableIntents(GatewayIntent.MESSAGE_CONTENT).build();
+
+            WatchlistAppStorage watchlistStorage = new RedisStorage("localhost",6379);
+            WatchlistApp watchlistApp = new WatchlistApp(watchlistStorage);
+
+            ProcessStorage processStorage = new RedisProcessStorage("localhost",6379);
+            ProcessManager processManager = new ProcessManager(processStorage);
+
+            processManager.registerProcess("view",new ViewMediaProcess(watchlistApp, processStorage));
+            processManager.registerProcess("add",new AddMediaProcess(watchlistApp, processStorage));
+            processManager.registerProcess("suggest",new SuggestMediaProcess(watchlistApp, processStorage));
+
+            BotCommands commands = new BotCommands(processManager);
+
+            api.addEventListener(new ListenerAdapter()
+            {
+                @Override
+                public void onMessageReceived(MessageReceivedEvent event)
+                {
+                    if (event.getAuthor().isBot())
+                        return;
+
+                    if (!event.getChannel().getName().equals("general"))
+                        return;
+
+                    String message = event.getMessage().getContentRaw();
+                    String username = event.getAuthor().getAsMention();
+                    String response = commands.respond(username, message);
+
+                    if(!response.isEmpty()){
+                        if (response.length() <= 2000) {
+                            event.getChannel().sendMessage(response).queue();
+                        } else {
+                            // Split by newlines so we don't cut a movie description in half
+                            int limit = 1900; // slightly under 2000 to be safe
+                            int currentLength = 0;
+                            StringBuilder chunk = new StringBuilder();
+
+                            for (String line : response.split("\n")) {
+                                if (currentLength + line.length() + 1 > limit) {
+                                    // Send the current chunk
+                                    event.getChannel().sendMessage(chunk.toString()).queue();
+                                    // Reset
+                                    chunk = new StringBuilder();
+                                    currentLength = 0;
+                                }
+                                chunk.append(line).append("\n");
+                                currentLength += line.length() + 1;
+                            }
+
+                            // Send any remaining text
+                            if (!chunk.isEmpty()) {
+                                event.getChannel().sendMessage(chunk.toString()).queue();
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        catch(DotenvException e){
+            System.out.println(".env did not load\n\nMake sure file exists in root");
+            System.exit(1);
+        }
+        catch(TokenNotFound e){
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
+    }
+}

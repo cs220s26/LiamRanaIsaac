@@ -1,6 +1,7 @@
-# LiamRanaIsaac
-for final proj
+##DevOps Final Project
 
-* Team Bum - Isaac
-* Team Everythin -  Rana
-* Team Spectator - Liam
+#Contributors:
+
+* Liam Kerr
+* Rana Yum
+* Isaac Nunez
