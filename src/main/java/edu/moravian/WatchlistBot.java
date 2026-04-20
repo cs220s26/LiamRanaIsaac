@@ -1,5 +1,6 @@
 package edu.moravian;
 
+import edu.moravian.exceptions.SecretsException;
 import edu.moravian.exceptions.TokenNotFound;
 import edu.moravian.process.*;
 import edu.moravian.process.processes.AddMediaProcess;
@@ -8,8 +9,6 @@ import edu.moravian.process.processes.ViewMediaProcess;
 import edu.moravian.watchlist.RedisStorage;
 import edu.moravian.watchlist.WatchlistApp;
 import edu.moravian.watchlist.WatchlistAppStorage;
-import io.github.cdimascio.dotenv.Dotenv;
-import io.github.cdimascio.dotenv.DotenvException;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -20,13 +19,16 @@ public class WatchlistBot
 {
     public static void main(String[] args)
     {
-        Dotenv dotenv;
         try{
-            dotenv = Dotenv.load();
-            String token = dotenv.get("DISCORD_TOKEN");
+            String secretName = "220_Discord_Token";
+            String secretKey = "DISCORD_TOKEN";
+
+            Secrets secrets = new Secrets();
+            String token = secrets.getSecret(secretName, secretKey);
             if(token == null){
                 throw new TokenNotFound("The DISCORD_TOKEN was not created properly");
             }
+            
             JDA api = JDABuilder.createDefault(token).enableIntents(GatewayIntent.MESSAGE_CONTENT).build();
 
             WatchlistAppStorage watchlistStorage = new RedisStorage("localhost",6379);
@@ -86,13 +88,13 @@ public class WatchlistBot
                 }
             });
         }
-        catch(DotenvException e){
-            System.out.println(".env did not load\n\nMake sure file exists in root");
-            System.exit(1);
-        }
         catch(TokenNotFound e){
             System.out.println(e.getMessage());
             System.exit(1);
+        }
+        catch(SecretsException e)
+        {
+            System.out.println(e.getMessage());
         }
     }
 }
