@@ -4,7 +4,7 @@
 sudo yum update -y
 
 # Install dependencies
-sudo yum install -y git redis6 maven java-21-amazon-corretto-devel
+sudo yum install -y git redis6 maven-amazon-corretto21
 
 # Clone repository
 git clone https://github.com/cs220s26/LiamRanaIsaac.git /LiamRanaIsaac
