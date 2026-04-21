@@ -9,6 +9,7 @@ import edu.moravian.process.processes.ViewMediaProcess;
 import edu.moravian.watchlist.RedisStorage;
 import edu.moravian.watchlist.WatchlistApp;
 import edu.moravian.watchlist.WatchlistAppStorage;
+import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -19,16 +20,31 @@ public class WatchlistBot
 {
     public static void main(String[] args)
     {
-       
-        try{
+        String token = null;
+
+        try {
             String secretName = "220_Discord_Token";
             String secretKey = "DISCORD_TOKEN";
 
+
             Secrets secrets = new Secrets();
-            String token = secrets.getSecret(secretName, secretKey);
-            if(token == null){
-                throw new TokenNotFound("The DISCORD_TOKEN was not created properly");
+            token = secrets.getSecret(secretName, secretKey);
+        }
+        catch(SecretsException e)
+        {
+            System.out.println(e.getMessage());
+        }
+
+        try {
+            Dotenv dotenv = Dotenv.load();
+            token = dotenv.get("DISCORD_TOKEN");
+            if (token == null) {
+                throw new TokenNotFound("No DISCORD_TOKEN exists in .env");
             }
+        }
+        catch(TokenNotFound e) {
+            System.out.println(e.getMessage());
+        }
             
             JDA api = JDABuilder.createDefault(token).enableIntents(GatewayIntent.MESSAGE_CONTENT).build();
 
@@ -88,14 +104,5 @@ public class WatchlistBot
                     }
                 }
             });
-        }
-        catch(TokenNotFound e){
-            System.out.println(e.getMessage());
-            System.exit(1);
-        }
-        catch(SecretsException e)
-        {
-            System.out.println(e.getMessage());
-        }
     }
 }
