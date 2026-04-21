@@ -22,10 +22,6 @@ export PATH=$JAVA_HOME/bin:$PATH
 git clone https://github.com/cs220s26/LiamRanaIsaac.git /LiamRanaIsaac
 cd /LiamRanaIsaac
 
-# Create .aws directory structure (credentials added manually after)
-mkdir -p /home/ec2-user/.aws
-chown ec2-user:ec2-user /home/ec2-user/.aws
-
 # Start Redis
 sudo systemctl start redis6
 sudo systemctl enable redis6
@@ -33,6 +29,7 @@ sudo systemctl enable redis6
 # Build project
 mvn clean package
 
+# Copy and start the systemd service
 cp watchlistbot.service /etc/systemd/system
 sudo systemctl enable watchlistbot
 sudo systemctl start watchlistbot
