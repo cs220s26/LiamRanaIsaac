@@ -33,6 +33,6 @@ sudo systemctl enable redis6
 # Build project
 mvn clean package
 
-cp ../watchlistbot.service /etc/systemd/system
+cp watchlistbot.service /etc/systemd/system
 sudo systemctl enable watchlistbot
 sudo systemctl start watchlistbot
