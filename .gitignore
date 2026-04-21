@@ -2,3 +2,5 @@
 .env
 target
 dump*
+.DS_Store
+**/.DS_Store
