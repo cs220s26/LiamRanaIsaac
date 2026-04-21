@@ -6,8 +6,8 @@ Wants=network-online.target
 [Service]
 User=ec2-user
 WorkingDirectory=/LiamRanaIsaac
-Environment=JAVA_HOME=/usr/lib/jvm/java-26-amazon-corretto.x86_64
-ExecStart=/usr/lib/jvm/java-26-amazon-corretto.x86_64/bin/java -jar target/WatchlistBot-1.0.0-jar-with-dependencies.jar
+Environment=JAVA_HOME=/usr/lib/jvm/java-21-amazon-corretto.x86_64
+ExecStart=/usr/lib/jvm/java-21-amazon-corretto.x86_64/bin/java -jar target/WatchlistBot-1.0.0-jar-with-dependencies.jar
 Restart=on-failure
 
 [Install]
