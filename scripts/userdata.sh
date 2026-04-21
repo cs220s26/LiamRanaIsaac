@@ -34,5 +34,4 @@ sudo systemctl enable redis6
 # Build project
 mvn clean package
 
-# Run the bot in background
-nohup java -jar target/WatchlistBot-1.0.0-jar-with-dependencies.jar > bot.log 2>&1 &
+echo "Setup complete! SSH in and add AWS credentials to ~/.aws/credentials, then run the bot."
