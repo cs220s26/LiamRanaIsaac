@@ -19,9 +19,8 @@ export JAVA_HOME=/usr/lib/jvm/java-26-amazon-corretto.x86_64
 export PATH=$JAVA_HOME/bin:$PATH
 
 # Clone repository
-cd /home/ec2-user
-git clone https://github.com/cs220s26/LiamRanaIsaac.git
-cd LiamRanaIsaac
+git clone https://github.com/cs220s26/LiamRanaIsaac.git /LiamRanaIsaac
+cd /LiamRanaIsaac
 
 # Create .aws directory structure (credentials added manually after)
 mkdir -p /home/ec2-user/.aws
@@ -34,4 +33,6 @@ sudo systemctl enable redis6
 # Build project
 mvn clean package
 
-echo "Setup complete! SSH in and add AWS credentials to ~/.aws/credentials, then run the bot."
+cp ../watchlistbot.service /etc/systemd/system
+sudo systemctl enable watchlistbot
+sudo systemctl start watchlistbot
