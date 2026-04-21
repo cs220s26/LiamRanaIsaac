@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Set Java 26
+export JAVA_HOME=/usr/lib/jvm/java-26-amazon-corretto.x86_64
+export PATH=$JAVA_HOME/bin:$PATH
+
 # Navigate to project root
 cd /home/ec2-user/LiamRanaIsaac
 

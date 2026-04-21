@@ -9,6 +9,12 @@ sudo yum install -y git redis6 maven java-26-amazon-corretto-devel
 # Configure Java/Maven to use Java 26
 sudo alternatives --set java /usr/lib/jvm/java-26-amazon-corretto.x86_64/bin/java
 sudo alternatives --set javac /usr/lib/jvm/java-26-amazon-corretto.x86_64/bin/javac
+
+# Set JAVA_HOME permanently for ec2-user
+echo 'export JAVA_HOME=/usr/lib/jvm/java-26-amazon-corretto.x86_64' >> /home/ec2-user/.bashrc
+echo 'export PATH=$JAVA_HOME/bin:$PATH' >> /home/ec2-user/.bashrc
+
+# Set JAVA_HOME for this script session
 export JAVA_HOME=/usr/lib/jvm/java-26-amazon-corretto.x86_64
 export PATH=$JAVA_HOME/bin:$PATH
 
