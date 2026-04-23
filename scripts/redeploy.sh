@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Navigate to the project directory
+cd /LiamRanaIsaac
 # Pull latest changes
 sudo git pull origin main
 # Rebuild
