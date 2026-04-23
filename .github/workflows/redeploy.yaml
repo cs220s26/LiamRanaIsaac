@@ -1,0 +1,18 @@
+name: Redeploy on AWS
+
+on:
+  workflow_dispatch: # This has to be triggered manually
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ssh-pipeline
+        uses: appleboy/ssh-action@v1
+        with:
+          host: <PUT_THE_HOST_NAME_HERE_LIAM>
+          username: ec2-user
+          key: ${{ secrets.LABSUSERPEM }}
+          script: |
+            cd /liamranaisaac
+            ./scripts/redeploy.sh
