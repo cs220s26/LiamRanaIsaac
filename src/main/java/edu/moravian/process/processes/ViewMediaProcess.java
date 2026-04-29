@@ -1,6 +1,5 @@
 package edu.moravian.process.processes;
 
-import edu.moravian.exceptions.InternalServerException;
 import edu.moravian.exceptions.StorageException;
 import edu.moravian.media.Media;
 import edu.moravian.media.Movie;
@@ -38,13 +37,11 @@ public class ViewMediaProcess extends BotProcess {
 
     private List<Media> assignList(String type) throws StorageException {
         WatchlistApp app = getApp();
-        if(type.contains("movie")){
+        if(type.contains("movie")) {
             return app.getMovieList();
-        }
-        else if(type.contains("show")){
+        } else if(type.contains("show")) {
             return app.getShowList();
-        }
-        else {
+        } else {
             return app.getWatchlist();
         }
     }
@@ -72,8 +69,7 @@ public class ViewMediaProcess extends BotProcess {
                 sb.append("* Director: ").append(movie.getDirector()).append("\n");
                 sb.append("* Runtime: ").append(movie.getRuntime()).append(" mins\n");
                 sb.append("* Release Year: ").append(movie.getRelease()).append("\n");
-            }
-            else if (media.getType().equals("show")) {
+            } else if (media.getType().equals("show")) {
                 Show show = (Show) media;
                 sb.append("* Seasons: ").append(show.getSeasons()).append("\n");
                 sb.append("* Run: ").append(show.getStart()).append(" - ").append(show.getEnd()).append("\n");

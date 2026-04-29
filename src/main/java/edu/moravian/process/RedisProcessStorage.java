@@ -11,8 +11,10 @@ import redis.clients.jedis.exceptions.JedisException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Redis Process Storage
+ */
 public class RedisProcessStorage implements ProcessStorage{
-
     private static final String PROCESS_TYPE_PREFIX = "process:type:";
     private static final String STATE_PREFIX = "process:state:";
     private static final String SESSION_PREFIX = "process:session:";
@@ -31,10 +33,9 @@ public class RedisProcessStorage implements ProcessStorage{
 
     @Override
     public void setCurrentProcessType(String username, String processType) throws StorageException {
-        try{
+        try {
             jedis.set(PROCESS_TYPE_PREFIX + username, processType);
-        }
-        catch(JedisException e){
+        } catch(JedisException e) {
             throw new StorageException("Internal Server Error");
         }
     }
@@ -43,8 +44,7 @@ public class RedisProcessStorage implements ProcessStorage{
     public String getCurrentProcessType(String username) throws StorageException{
         try{
             return jedis.get(PROCESS_TYPE_PREFIX + username);
-        }
-        catch(JedisException e){
+        } catch(JedisException e) {
             throw new StorageException("Internal Server Error");
         }
     }
@@ -53,8 +53,7 @@ public class RedisProcessStorage implements ProcessStorage{
     public void setState(String username, String state) throws StorageException{
         try{
             jedis.set(STATE_PREFIX + username, state);
-        }
-        catch(JedisException e){
+        } catch(JedisException e) {
             throw new StorageException("Internal Server Error");
         }
 
@@ -62,10 +61,9 @@ public class RedisProcessStorage implements ProcessStorage{
 
     @Override
     public String getState(String username) throws StorageException{
-        try{
+        try {
             return jedis.get(STATE_PREFIX + username);
-        }
-        catch(JedisException e){
+        } catch(JedisException e) {
             throw new StorageException("Internal Server Error");
         }
 
@@ -80,8 +78,7 @@ public class RedisProcessStorage implements ProcessStorage{
             MediaMapper<?> mapper = mapperTypes.get(type);
             Map<String,String> hash = mapper.toHash(media);
             jedis.hmset(key,hash);
-        }
-        catch(JedisException e){
+        } catch(JedisException e) {
             throw new StorageException("Internal Server Error");
         }
 
@@ -96,43 +93,38 @@ public class RedisProcessStorage implements ProcessStorage{
             MediaMapper<?> mapper = mapperTypes.get(type);
             Media emptyMedia = mapper.createEmptyMedia();
             return mapper.fromHash(emptyMedia,hash);
-        }
-        catch(JedisException e){
+        } catch(JedisException e) {
             throw new StorageException("Internal Server Error");
         }
-
     }
 
     @Override
     public void clearProcess(String username) throws StorageException{
-        try{
+        try {
             jedis.del(PROCESS_TYPE_PREFIX + username);
             jedis.del(STATE_PREFIX + username);
             jedis.del(SESSION_PREFIX + username);
             jedis.del(PENDING_FILTERS_PREFIX + username);
             jedis.del(FILTERS_PREFIX + username);
-        }
-        catch(JedisException e) {
+        } catch(JedisException e) {
             throw new StorageException("Internal Server Error");
         }
     }
 
     @Override
     public void setPendingFilters(String username, String filters) throws StorageException{
-        try{
+        try {
             jedis.set(PENDING_FILTERS_PREFIX + username, filters);
-        }
-        catch(JedisException e) {
+        } catch(JedisException e) {
             throw new StorageException("Internal Server Error");
         }
     }
 
     @Override
     public String getPendingFilters(String username) throws StorageException{
-        try{
+        try {
             return jedis.get(PENDING_FILTERS_PREFIX + username);
-        }
-        catch(JedisException e) {
+        } catch(JedisException e) {
             throw new StorageException("Internal Server Error");
         }
     }
@@ -141,8 +133,7 @@ public class RedisProcessStorage implements ProcessStorage{
     public void addFilter(String username, String filter, String value) throws StorageException{
         try{
             jedis.hset(FILTERS_PREFIX + username, filter, value);
-        }
-        catch(JedisException e) {
+        } catch(JedisException e) {
             throw new StorageException("Internal Server Error");
         }
     }
@@ -151,8 +142,7 @@ public class RedisProcessStorage implements ProcessStorage{
     public Map<String,String> getFilter(String username) throws StorageException{
         try{
             return jedis.hgetAll(FILTERS_PREFIX + username);
-        }
-        catch(JedisException e) {
+        } catch(JedisException e) {
             throw new StorageException("Internal Server Error");
         }
     }

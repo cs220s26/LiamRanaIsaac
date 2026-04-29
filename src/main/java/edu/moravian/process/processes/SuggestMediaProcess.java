@@ -5,7 +5,11 @@ import edu.moravian.media.Media;
 import edu.moravian.process.ProcessStorage;
 import edu.moravian.watchlist.WatchlistApp;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 
 public class SuggestMediaProcess extends BotProcess{
     private final ProcessStorage storage;
@@ -17,7 +21,7 @@ public class SuggestMediaProcess extends BotProcess{
 
     private SuggestMediaState getState(String username) throws StorageException{
         String state = storage.getState(username);
-        if(state == null){
+        if(state == null) {
             return SuggestMediaState.NOT_ACTIVE;
         }
         return SuggestMediaState.valueOf(state);
@@ -32,7 +36,7 @@ public class SuggestMediaProcess extends BotProcess{
 
     @Override
     public String handleInput(String username, String msg) throws StorageException{
-        switch(getState(username)) {
+        switch (getState(username)) {
             case SUGGEST_BASE:
                 return processBase(username, msg);
             case SUGGEST_FILTERS:
@@ -71,14 +75,12 @@ public class SuggestMediaProcess extends BotProcess{
             storage.setState(username, SuggestMediaState.SUGGEST_FILTERS.name());
             return "Searching **Movies**. What do you want to filter by?\n" +
                     "(Options: Genre, Rating, Platform, Director, Runtime, Release)";
-        }
-        else if (choice.contains("show")) {
+        } else if (choice.contains("show")) {
             storage.addFilter(username, "type", "show");
             storage.setState(username, SuggestMediaState.SUGGEST_FILTERS.name());
             return "Searching **TV Shows**. What do you want to filter by?\n" +
                     "(Options: Genre, Rating, Platform, Seasons, Start Year, End Year)";
-        }
-        else {
+        } else {
             // "Both" or invalid input treated as global search
             // We don't set a "type" filter here.
             storage.setState(username, SuggestMediaState.SUGGEST_FILTERS.name());
@@ -99,13 +101,24 @@ public class SuggestMediaProcess extends BotProcess{
             String filter = normalizeKey(raw);
 
             // Validation: Skip filters that don't match the selected type
-            if (filter.equals("DIRECTOR") && type.equals("show")) continue;
-            if (filter.equals("RUNTIME") && type.equals("show")) continue;
-            if (filter.equals("RELEASE") && type.equals("show")) continue;
-
-            if (filter.equals("SEASONS") && type.equals("movie")) continue;
-            if (filter.equals("START") && type.equals("movie")) continue;
-            if (filter.equals("END") && type.equals("movie")) continue;
+            if (filter.equals("DIRECTOR") && type.equals("show")) {
+                continue;
+            }
+            if (filter.equals("RUNTIME") && type.equals("show")) {
+                continue;
+            }
+            if (filter.equals("RELEASE") && type.equals("show")) {
+                continue;
+            }
+            if (filter.equals("SEASONS") && type.equals("movie")) {
+                continue;
+            }
+            if (filter.equals("START") && type.equals("movie")) {
+                continue;
+            }
+            if (filter.equals("END") && type.equals("movie")) {
+                continue;
+            }
 
             // Map string input to Enum name checking
             if (isValidFilter(filter)) {
@@ -219,9 +232,15 @@ public class SuggestMediaProcess extends BotProcess{
 
     private String normalizeKey(String raw) {
         // Handle Plurals
-        if (raw.equals("GENRES")) return "GENRE";
-        if (raw.equals("RATINGS")) return "RATING";
-        if (raw.equals("DIRECTORS")) return "DIRECTOR";
+        if (raw.equals("GENRES")) {
+            return "GENRE";
+        }
+        if (raw.equals("RATINGS")) {
+            return "RATING";
+        }
+        if (raw.equals("DIRECTORS")) {
+            return "DIRECTOR";
+        }
         if (raw.equals("STREAMING_SERVICE") || raw.equals("STREAMING SERVICE") || raw.equals("PLATFORMS")) {
             return "PLATFORM";
         }

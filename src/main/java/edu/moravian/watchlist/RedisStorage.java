@@ -10,7 +10,12 @@ import edu.moravian.media.mapper.ShowMapper;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RedisStorage implements WatchlistAppStorage {
     //Adding to Watchlists
@@ -44,7 +49,7 @@ public class RedisStorage implements WatchlistAppStorage {
 
     @Override
     public List<Media> getWatchlist() throws StorageException {
-        try{
+        try {
             List<String> mediaIds = jedis.lrange(WATCHLIST_KEY, 0, -1);
             List<Media> watchlist = new ArrayList<>();
 
@@ -57,15 +62,14 @@ public class RedisStorage implements WatchlistAppStorage {
                 watchlist.add(media);
             }
             return watchlist;
-        }
-        catch(JedisException e){
+        } catch(JedisException e){
             throw new StorageException("Internal Server Error");
         }
     }
 
     @Override
     public  List<Media> getMovieList() throws StorageException {
-        try{
+        try {
             MediaMapper<?> movieMapper = mapperTypes.get("movie");
             Set<String> mediaIds = jedis.smembers(WATCHLIST_KEY + ":movie");
             List<Media> watchlist = new ArrayList<>();
@@ -78,8 +82,7 @@ public class RedisStorage implements WatchlistAppStorage {
                 watchlist.add(media);
             }
             return watchlist;
-        }
-        catch(JedisException e){
+        } catch(JedisException e){
             throw new StorageException("Internal Server Error");
         }
 
@@ -100,8 +103,7 @@ public class RedisStorage implements WatchlistAppStorage {
                 watchlist.add(media);
             }
             return watchlist;
-        }
-        catch(JedisException e){
+        } catch(JedisException e){
             throw new StorageException("Internal Server Error");
         }
     }
@@ -118,8 +120,7 @@ public class RedisStorage implements WatchlistAppStorage {
             saveMediaData(mediaId, hash);
             addToWatchlists(mediaId, media);
             updateIndexes(mediaId, hash);
-        }
-        catch(JedisException e){
+        } catch(JedisException e){
             throw new StorageException("Internal Server Error");
         }
     }
@@ -147,8 +148,7 @@ public class RedisStorage implements WatchlistAppStorage {
             addStringIndex(DIRECTOR_PREFIX, hash.get("director"), mediaId);
             addNumericIndex(RUNTIME_KEY, hash.get("runtime"), mediaId);
             addNumericIndex(RELEASE_YEAR_KEY, hash.get("release"), mediaId);
-        }
-        else if ("show".equals(type)) {
+        } else if ("show".equals(type)) {
             // Only index Show fields if it IS a show
             addNumericIndex(START_YEAR_KEY, hash.get("start"), mediaId);
             addNumericIndex(END_YEAR_KEY, hash.get("end"), mediaId);
@@ -172,7 +172,9 @@ public class RedisStorage implements WatchlistAppStorage {
     }
 
     private Double parseNumericValue(Object value) {
-        if (value == null) return null;
+        if (value == null) {
+            return null;
+        }
 
         if (value instanceof Number) {
             return ((Number) value).doubleValue();
@@ -252,7 +254,6 @@ public class RedisStorage implements WatchlistAppStorage {
         }
 
         if (criteria.containsKey("director")) {
-
             keysToIntersect.add(DIRECTOR_PREFIX + criteria.get("director").trim());
         }
 
@@ -274,7 +275,9 @@ public class RedisStorage implements WatchlistAppStorage {
         for (String id : finalIds) {
 
             Map<String, String> hash = jedis.hgetAll("media:" + id);
-            if (hash == null || hash.isEmpty()) continue;
+            if (hash == null || hash.isEmpty()) {
+                continue;
+            }
 
             String type = hash.get("type");
             MediaMapper<?> mapper = mapperTypes.get(type);
@@ -298,33 +301,38 @@ public class RedisStorage implements WatchlistAppStorage {
             if (criteria.containsKey("rating")) {
                 double min = Double.parseDouble(criteria.get("rating"));
                 double actual = Double.parseDouble(media.getRating());
-                if (actual < min) return false;
+                if (actual < min) {
+                    return false;
+                }
             }
 
 
             if (criteria.containsKey("runtime") && media instanceof Movie) {
                 int max = Integer.parseInt(criteria.get("runtime"));
                 int actual = Integer.parseInt(((Movie) media).getRuntime());
-                if (actual > max) return false;
+                if (actual > max) {
+                    return false;
+                }
             }
 
 
             if (criteria.containsKey("seasons") && media instanceof Show) {
                 int min = Integer.parseInt(criteria.get("seasons"));
                 int actual = Integer.parseInt(((Show) media).getSeasons());
-                if (actual < min) return false;
+                if (actual < min) {
+                    return false;
+                }
             }
 
 
             if (criteria.containsKey("release") && media instanceof Movie) {
                 int target = Integer.parseInt(criteria.get("release"));
                 int actual = Integer.parseInt(((Movie) media).getRelease());
-                if (actual < target) return false;
+                return actual >= target;
             }
 
             return true;
         } catch (NumberFormatException | NullPointerException e) {
-
             return false;
         }
     }

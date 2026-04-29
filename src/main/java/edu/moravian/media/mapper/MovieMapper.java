@@ -1,6 +1,5 @@
 package edu.moravian.media.mapper;
 
-import edu.moravian.media.Media;
 import edu.moravian.media.Movie;
 
 import java.util.HashMap;
@@ -23,10 +22,18 @@ public class MovieMapper extends MediaMapper<Movie> {
 
     @Override
     void addSubclassFieldsToHash(Movie movie, Map<String, String> hash) {
-        if (movie.getType() != null) hash.put("type", movie.getType());
-        if (movie.getRelease() != null) hash.put("release", movie.getRelease());
-        if (movie.getRuntime() != null) hash.put("runtime", movie.getRuntime());
-        if (movie.getDirector() != null) hash.put("director", movie.getDirector());
+        if (movie.getType() != null) {
+            hash.put("type", movie.getType());
+        }
+        if (movie.getRelease() != null) {
+            hash.put("release", movie.getRelease());
+        }
+        if (movie.getRuntime() != null) {
+            hash.put("runtime", movie.getRuntime());
+        }
+        if (movie.getDirector() != null) {
+            hash.put("director", movie.getDirector());
+        }
     }
 
 

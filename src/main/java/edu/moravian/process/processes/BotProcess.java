@@ -1,10 +1,10 @@
 package edu.moravian.process.processes;
-import edu.moravian.exceptions.InternalServerException;
+
 import edu.moravian.exceptions.StorageException;
 import edu.moravian.watchlist.WatchlistApp;
 
 public abstract class BotProcess {
-    private WatchlistApp app;
+    private final WatchlistApp app;
 
     public BotProcess(WatchlistApp app){
         this.app = app;

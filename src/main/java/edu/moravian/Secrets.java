@@ -14,17 +14,16 @@ import software.amazon.awssdk.services.secretsmanager.model.SecretsManagerExcept
 
 public class Secrets {
 
-    public String getSecret(String secretName, String secretKey) throws SecretsException
-    {
+    public String getSecret(String secretName, String secretKey) throws SecretsException {
         Region region = Region.of("us-east-1");
 
         SecretsManagerClient client = SecretsManagerClient.builder()
-                .region(region)
-                .build();
+            .region(region)
+            .build();
 
         GetSecretValueRequest getSecretValueRequest = GetSecretValueRequest.builder()
-                .secretId(secretName)
-                .build();
+            .secretId(secretName)
+            .build();
 
         GetSecretValueResponse getSecretValueResponse;
 
@@ -36,8 +35,9 @@ public class Secrets {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(secretEntry);
             JsonNode jsonNode = root.get(secretKey);
-            if(jsonNode == null)
+            if (jsonNode == null) {
                 throw new SecretsException("Key not found in secret: " + secretKey);
+            }
             return jsonNode.asText();
         } catch (SecretsManagerException | JacksonException | SdkClientException e) {
             throw new SecretsException("Error when retrieving secret: " + e.getMessage());

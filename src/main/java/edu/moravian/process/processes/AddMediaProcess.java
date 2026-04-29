@@ -8,7 +8,7 @@ import edu.moravian.process.ProcessStorage;
 import edu.moravian.watchlist.WatchlistApp;
 
 public class AddMediaProcess extends BotProcess {
-    private ProcessStorage storage;
+    private final ProcessStorage storage;
 
     public AddMediaProcess(WatchlistApp app, ProcessStorage storage){
         super(app);
@@ -31,7 +31,7 @@ public class AddMediaProcess extends BotProcess {
 
     @Override
     public String handleInput(String username, String msg) throws StorageException {
-        switch (getState(username)){
+        switch (getState(username)) {
             case AddMediaState.NOT_ACTIVE:
                 return "";
             case AddMediaState.ASK_TYPE:
@@ -51,8 +51,7 @@ public class AddMediaProcess extends BotProcess {
                 Media media = storage.getMediaInProgress(username);
                 if(media.getType().equals("movie")){
                     return username + " What year was the movie Released?";
-                }
-                else {
+                } else {
                     return username + " How many seasons are there?";
                 }
 
@@ -83,8 +82,9 @@ public class AddMediaProcess extends BotProcess {
                 processEnd(username, msg);
                 finalizeMediaCreation(username);
                 return username + " Show added successfully! You can view it with `!watchlist`.";
+            default:
+                return "Weird... Could not find state";
         }
-        return "";
     }
 
     private void startMediaCreation(String username) throws StorageException{
@@ -96,11 +96,9 @@ public class AddMediaProcess extends BotProcess {
 
         if(type.equals("movie")){
             media = new Movie();
-        }
-        else if(type.equals("show")){
+        } else if(type.equals("show")){
             media = new Show();
-        }
-        else{
+        } else{
             throw new IllegalArgumentException("Unknown type specified: " + type);
         }
 

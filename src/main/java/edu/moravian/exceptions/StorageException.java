@@ -5,3 +5,4 @@ public class StorageException extends Exception {
         super(message);
     }
 }
+

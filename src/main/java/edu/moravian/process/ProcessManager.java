@@ -1,6 +1,5 @@
 package edu.moravian.process;
 
-import edu.moravian.exceptions.InternalServerException;
 import edu.moravian.exceptions.StorageException;
 import edu.moravian.process.processes.BotProcess;
 

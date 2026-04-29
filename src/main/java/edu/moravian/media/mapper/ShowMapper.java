@@ -1,6 +1,5 @@
 package edu.moravian.media.mapper;
 
-import edu.moravian.media.Media;
 import edu.moravian.media.Show;
 
 import java.util.HashMap;
@@ -23,10 +22,18 @@ public class ShowMapper extends MediaMapper<Show> {
 
     @Override
     void addSubclassFieldsToHash(Show show, Map<String, String> hash) {
-        if (show.getType() != null)hash.put("type", show.getType());
-        if (show.getStart() != null)hash.put("start", show.getStart());
-        if (show.getEnd() != null)hash.put("end", show.getEnd());
-        if (show.getSeasons() != null)hash.put("seasons", show.getSeasons());
+        if (show.getType() != null) {
+            hash.put("type", show.getType());
+        }
+        if (show.getStart() != null) {
+            hash.put("start", show.getStart());
+        }
+        if (show.getEnd() != null) {
+            hash.put("end", show.getEnd());
+        }
+        if (show.getSeasons() != null) {
+            hash.put("seasons", show.getSeasons());
+        }
     }
 
     @Override

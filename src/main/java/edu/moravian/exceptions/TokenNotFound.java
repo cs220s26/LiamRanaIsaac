@@ -5,3 +5,4 @@ public class TokenNotFound extends Exception {
         super(message);
     }
 }
+

@@ -9,10 +9,18 @@ public abstract class MediaMapper<T extends Media> {
 
     public  HashMap<String,String> toHash(Media media){
         HashMap<String, String> hash = new HashMap<>();
-        if (media.getTitle() != null) hash.put("title", media.getTitle());
-        if (media.getRating() != null) hash.put("rating", media.getRating());
-        if (media.getGenre() != null) hash.put("genre", media.getGenre());
-        if (media.getStreamingService() != null) hash.put("platform", media.getStreamingService());
+        if (media.getTitle() != null) {
+            hash.put("title", media.getTitle());
+        }
+        if (media.getRating() != null) {
+            hash.put("rating", media.getRating());
+        }
+        if (media.getGenre() != null) {
+            hash.put("genre", media.getGenre());
+        }
+        if (media.getStreamingService() != null) {
+            hash.put("platform", media.getStreamingService());
+        }
         addSubclassFieldsToHash((T) media,hash);
         return hash;
     }

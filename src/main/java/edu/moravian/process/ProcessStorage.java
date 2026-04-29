@@ -21,11 +21,11 @@ public interface ProcessStorage {
 
     void clearProcess(String username) throws StorageException;
 
-    public void setPendingFilters(String username, String filters) throws StorageException;
+    void setPendingFilters(String username, String filters) throws StorageException;
 
-    public String getPendingFilters(String username) throws StorageException;
+    String getPendingFilters(String username) throws StorageException;
 
-    public void addFilter(String username, String filter, String value) throws StorageException;
+    void addFilter(String username, String filter, String value) throws StorageException;
 
-    public Map<String,String> getFilter(String username) throws StorageException;
+    Map<String,String> getFilter(String username) throws StorageException;
 }

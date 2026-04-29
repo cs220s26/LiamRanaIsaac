@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class WatchlistApp {
-    private WatchlistAppStorage storage;
+    private final WatchlistAppStorage storage;
 
     public WatchlistApp(WatchlistAppStorage storage){
         this.storage = storage;

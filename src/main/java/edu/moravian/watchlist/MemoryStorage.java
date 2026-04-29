@@ -1,11 +1,14 @@
 package edu.moravian.watchlist;
 
-import edu.moravian.exceptions.StorageException;
 import edu.moravian.media.Media;
 import edu.moravian.media.Movie;
 import edu.moravian.media.Show;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MemoryStorage implements WatchlistAppStorage {
@@ -84,7 +87,9 @@ public class MemoryStorage implements WatchlistAppStorage {
             String[] targetGenres = criteria.get("genre").split(",");
             String mediaGenre = media.getGenre();
 
-            if (mediaGenre == null) return false;
+            if (mediaGenre == null) {
+                return false;
+            }
 
             String normalizedMediaGenre = mediaGenre.trim().toLowerCase();
             boolean matchesAnyGenre = Arrays.stream(targetGenres)
@@ -107,25 +112,31 @@ public class MemoryStorage implements WatchlistAppStorage {
             if (criteria.containsKey("rating")) {
                 double min = Double.parseDouble(criteria.get("rating"));
                 double actual = Double.parseDouble(media.getRating());
-                if (actual < min) return false;
+                if (actual < min) {
+                    return false;
+                }
             }
 
             if (criteria.containsKey("runtime") && media instanceof Movie) {
                 int max = Integer.parseInt(criteria.get("runtime"));
                 int actual = Integer.parseInt(((Movie) media).getRuntime());
-                if (actual > max) return false;
+                if (actual > max) {
+                    return false;
+                }
             }
 
             if (criteria.containsKey("seasons") && media instanceof Show) {
                 int min = Integer.parseInt(criteria.get("seasons"));
                 int actual = Integer.parseInt(((Show) media).getSeasons());
-                if (actual < min) return false;
+                if (actual < min) {
+                    return false;
+                }
             }
 
             if (criteria.containsKey("release") && media instanceof Movie) {
                 int target = Integer.parseInt(criteria.get("release"));
                 int actual = Integer.parseInt(((Movie) media).getRelease());
-                if (actual < target) return false;
+                return actual >= target;
             }
 
             return true;

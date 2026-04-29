@@ -24,7 +24,10 @@ public abstract class Media {
 
     @Override
     public String toString(){
-        return "Title: " + title + "\n" + "Rating: " + rating + "\n" + "Genre: " + genre + "\n" + "Note: " + streamingService;
+        return "Title: " + title + "\n"
+            + "Rating: " + rating + "\n"
+            + "Genre: " + genre + "\n"
+            + "Note: " + streamingService;
     }
 
     public String getTitle() {

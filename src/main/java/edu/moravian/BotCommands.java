@@ -11,8 +11,9 @@ public class BotCommands {
     }
 
     public String respond(String username, String msg) {
-        try{
-            switch(msg){
+        try {
+
+            switch (msg) {
                 case "!watchlist":
                     return getWatchlist(username);
                 case "!add":
