@@ -32,15 +32,18 @@ public class WatchlistBot {
             System.out.println(e.getMessage());
         }
 
-        try {
-            Dotenv dotenv = Dotenv.load();
-            token = dotenv.get("DISCORD_TOKEN");
-            if (token == null) {
-                throw new TokenNotFound("No DISCORD_TOKEN exists in .env");
+        if (token == null) {
+            try  {
+                Dotenv dotenv = Dotenv.load();
+                token = dotenv.get("DISCORD_TOKEN");
+                if (token == null) {
+                    throw new TokenNotFound("No DISCORD_TOKEN exists in .env");
+                }
+            } catch (TokenNotFound e) {
+                System.out.println(e.getMessage());
             }
-        } catch (TokenNotFound e) {
-            System.out.println(e.getMessage());
-        }
+        } 
+
 
         JDA api = JDABuilder.createDefault(token).enableIntents(GatewayIntent.MESSAGE_CONTENT).build();
 
