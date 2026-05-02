@@ -1,6 +1,26 @@
 #!/bin/bash
 
 # Command starts with the type then list out the 7 params
+# params for movie: movie title rating genre platform release director runtime
+# params for show: show title rating genre platform start end seasons
+
+if [[ "$1" == "help" ]]; then
+  echo "[movie|show] [title] [rating] [genre] [platform] [release|start] [director|end] [runtime|seasons]"
+  exit 1
+fi
+
+if [[ $# -lt 8 ]]; then
+    echo "More parameters required, use help for more information"
+    exit 1
+fi
+
+if [[ ! "$3" =~ ^[0-9]+(\.[0-9]+)?$ ]] ||
+[[ ! "$6" =~ ^[0-9]+(\.[0-9]+)?$ ]] ||
+[[ ! "$8" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+    echo "One of these parameters must be a numeric value: $3, $6, $8"
+    exit 1
+fi
+
 
 TYPE=$1
 TITLE=$2
@@ -18,7 +38,7 @@ if [ "$TYPE" == "movie" ]; then
         "director" "$7" "false"
         "runtime"  "$8" "true"
     )
-    redis-cli SADD "watchlist:movie" "$ID"
+    redis-cli SADD "watchlist:movie" "$ID" > /dev/null
 
 elif [ "$TYPE" == "show" ]; then
     params=(
@@ -26,33 +46,36 @@ elif [ "$TYPE" == "show" ]; then
         "genre"    "$4" "false"
         "platform" "$5" "false"
         "start"    "$6" "true"
-        "end"      "$7" "true"
+        "end"      "$7" "present_check"
         "seasons"  "$8" "true"
     )
-    redis-cli SADD "watchlist:show" "$ID"
+    redis-cli SADD "watchlist:show" "$ID" > /dev/null
 fi
 
-redis-cli HMSET "media:$ID" title "$TITLE" type "$TYPE"
+redis-cli HSET "media:$ID" title "$TITLE" type "$TYPE" > /dev/null
 
 for (( i=0; i<${#params[@]}; i+=3 )); do
     FIELD=${params[$i]}
     VALUE=${params[$i+1]}
     IS_NUM=${params[$i+2]}
 
-    redis-cli HSET "media:$ID" "$FIELD" "$VALUE"
+    redis-cli HSET "media:$ID" "$FIELD" "$VALUE" > /dev/null
 
     if [ "$IS_NUM" == "true" ]; then
-        if [[ "$VALUE" =~ ^[0-9]+$ ]]; then
-           redis-cli ZADD "has:$FIELD" "$VALUE" "$ID"
-        else
-           redis-cli ZADD "has:$FIELD" "-1" "$ID"
-        fi
+      redis-cli ZADD "has:$FIELD" "$VALUE" "$ID" > /dev/null
+    elif [ "$IS_NUM" == "present_check" ]; then
+      shopt -s nocasematch
+      if [[ "$VALUE" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+        redis-cli ZADD "has:$FIELD" "$VALUE" "$ID" > /dev/null
+      fi
+      shopt -u nocasematch
+
     else
         LOWER_VAL=$(echo "$VALUE" | tr '[:upper:]' '[:lower:]')
-        redis-cli SADD "has:$FIELD:$LOWER_VAL" "$ID"
+        redis-cli SADD "has:$FIELD:$LOWER_VAL" "$ID" > /dev/null
     fi
 done
 
-redis-cli LPUSH "watchlist" "$ID"
+redis-cli LPUSH "watchlist" "$ID" > /dev/null
 
-echo "$TITLE added as media:$ID"
+echo "$TITLE added as media: $ID"
