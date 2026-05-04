@@ -1,11 +1,6 @@
 # Watchlist Bot — DevOps Final Project
 
-<<<<<<< HEAD
-![Testing](https://github.com/cs220s26/LiamRanaIsaac/actions/workflows/tests.yml/badge.svg)
-=======
-## Test Status
 ![Testing](https://github.com/cs220s26/LiamRanaIsaac/actions/workflows/tests.yaml/badge.svg)
->>>>>>> 91529104460cb9de2cd8d326ead9ebcd02dd5c42
 
 A Discord bot for managing personal movie and TV show watchlists, wrapped in a full DevOps pipeline for the CSCI 220 final project.
 
@@ -29,15 +24,15 @@ A Discord bot for managing personal movie and TV show watchlists, wrapped in a f
 
 This project applies DevOps practices to a pre-existing Java Discord bot originally built for CSCI 244. The bot lets Discord users manage a personal watchlist through a conversational interface — the focus here is the pipeline surrounding it:
 
-| Practice | Tool |
-|---|---|
-| Source control | Git + GitHub (cs220s26 org) |
-| Build & static analysis | Maven (Checkstyle + fat JAR) |
-| Secrets management | AWS Secrets Manager |
-| Database | Redis + setup scripts |
-| Production hosting | AWS EC2 + SystemD |
-| Continuous Integration | GitHub Actions (every push) |
-| Continuous Deployment | GitHub Actions (manual trigger) |
+| Practice                | Tool                            |
+| ----------------------- | ------------------------------- |
+| Source control          | Git + GitHub (cs220s26 org)     |
+| Build & static analysis | Maven (Checkstyle + fat JAR)    |
+| Secrets management      | AWS Secrets Manager             |
+| Database                | Redis + setup scripts           |
+| Production hosting      | AWS EC2 + SystemD               |
+| Continuous Integration  | GitHub Actions (every push)     |
+| Continuous Deployment   | GitHub Actions (manual trigger) |
 
 ---
 
@@ -49,13 +44,13 @@ This project applies DevOps practices to a pre-existing Java Discord bot origina
 
 ## Bot Commands
 
-| Command | Description |
-|---|---|
+| Command      | Description                                           |
+| ------------ | ----------------------------------------------------- |
 | `!watchlist` | View your watchlist (optionally filter by Movie/Show) |
-| `!add` | Add a new Movie or TV Show to your watchlist |
-| `!suggest` | Filter your watchlist to find your next watch |
-| `!status` | Check your current dialogue state |
-| `!help` | List all available commands |
+| `!add`       | Add a new Movie or TV Show to your watchlist          |
+| `!suggest`   | Filter your watchlist to find your next watch         |
+| `!status`    | Check your current dialogue state                     |
+| `!help`      | List all available commands                           |
 
 ---
 
@@ -72,12 +67,14 @@ This project applies DevOps practices to a pre-existing Java Discord bot origina
 ### Steps
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/cs220s26/LiamRanaIsaac.git
    cd LiamRanaIsaac
    ```
 
 2. **Start Redis locally**
+
    ```bash
    # macOS (Homebrew)
    brew services start redis
@@ -87,16 +84,19 @@ This project applies DevOps practices to a pre-existing Java Discord bot origina
    ```
 
 3. **Build** — runs Checkstyle, compiles, and packages a fat JAR
+
    ```bash
    mvn clean package
    ```
 
 4. **Run the bot**
+
    ```bash
    java -jar target/WatchlistBot-1.0.0-jar-with-dependencies.jar
    ```
 
 5. **(Optional) Load starter media into Redis**
+
    ```bash
    ./scripts/addStarterMedia.sh
    ```
@@ -135,11 +135,11 @@ Production runs on an **AWS EC2** instance. Initial setup is fully automated via
 
 ### Ongoing Operations
 
-| Task | Command |
-|---|---|
-| Redeploy latest code | `./scripts/redeploy.sh` |
-| Reset Redis | `./scripts/resetDB.sh` |
-| Load starter media | `./scripts/addStarterMedia.sh` |
+| Task                 | Command                        |
+| -------------------- | ------------------------------ |
+| Redeploy latest code | `./scripts/redeploy.sh`        |
+| Reset Redis          | `./scripts/resetDB.sh`         |
+| Load starter media   | `./scripts/addStarterMedia.sh` |
 
 `redeploy.sh` runs `git pull origin main` → `mvn clean package` → `systemctl restart watchlistbot`.
 
@@ -151,12 +151,12 @@ Production runs on an **AWS EC2** instance. Initial setup is fully automated via
 
 All four workflows live in `.github/workflows/`:
 
-| File | Trigger | What it does |
-|---|---|---|
-| `tests.yaml` | Every `git push` | Runs Checkstyle + JUnit tests |
-| `redeploy.yaml` | Manual | SSH into EC2 and run `redeploy.sh` |
-| `InjestStarterMedia.yaml` | Manual | SSH into EC2 and run `addStarterMedia.sh` |
-| `resetDB.yaml` | Manual | SSH into EC2 and run `resetDB.sh` |
+| File                      | Trigger          | What it does                              |
+| ------------------------- | ---------------- | ----------------------------------------- |
+| `tests.yaml`              | Every `git push` | Runs Checkstyle + JUnit tests             |
+| `redeploy.yaml`           | Manual           | SSH into EC2 and run `redeploy.sh`        |
+| `InjestStarterMedia.yaml` | Manual           | SSH into EC2 and run `addStarterMedia.sh` |
+| `resetDB.yaml`            | Manual           | SSH into EC2 and run `resetDB.sh`         |
 
 ### GitHub Secrets
 
@@ -169,6 +169,7 @@ The SSH-based workflows authenticate using a secret stored in the repository:
 ### How CI Works
 
 On every push, GitHub Actions:
+
 1. Spins up an `ubuntu-latest` runner with Java 21 (Amazon Corretto) and Maven caching.
 2. Runs `mvn test`, which validates Checkstyle, compiles, and runs all JUnit 5 tests.
 3. Marks the workflow failed (blocking merges) on any violation or test failure.
@@ -176,6 +177,7 @@ On every push, GitHub Actions:
 ### How CD Works
 
 Triggered manually from the **Actions** tab:
+
 1. GitHub Actions SSHes into EC2 using `LABSUSERPEM`.
 2. Runs the relevant script on the remote instance.
 
@@ -183,21 +185,21 @@ Triggered manually from the **Actions** tab:
 
 ## Technologies
 
-| Technology | Purpose |
-|---|---|
-| Java 21 (Amazon Corretto) | Primary application language |
-| Maven | Build automation and dependency management |
-| Checkstyle | Static code analysis |
-| JUnit 5 | Unit testing |
-| Git / GitHub | Version control and CI/CD hosting |
-| GitHub Actions | CI/CD pipeline automation |
-| AWS EC2 | Cloud production server |
-| AWS Secrets Manager | Secure token/credential storage |
-| AWS SDK for Java v2 | Secrets Manager client library |
-| SystemD | Linux service manager |
-| Redis | Key-value store for watchlist persistence |
-| Jedis | Java Redis client |
-| JDA (Java Discord API) | Discord bot framework |
+| Technology                | Purpose                                    |
+| ------------------------- | ------------------------------------------ |
+| Java 21 (Amazon Corretto) | Primary application language               |
+| Maven                     | Build automation and dependency management |
+| Checkstyle                | Static code analysis                       |
+| JUnit 5                   | Unit testing                               |
+| Git / GitHub              | Version control and CI/CD hosting          |
+| GitHub Actions            | CI/CD pipeline automation                  |
+| AWS EC2                   | Cloud production server                    |
+| AWS Secrets Manager       | Secure token/credential storage            |
+| AWS SDK for Java v2       | Secrets Manager client library             |
+| SystemD                   | Linux service manager                      |
+| Redis                     | Key-value store for watchlist persistence  |
+| Jedis                     | Java Redis client                          |
+| JDA (Java Discord API)    | Discord bot framework                      |
 
 ---
 
