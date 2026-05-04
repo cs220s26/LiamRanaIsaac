@@ -1,5 +1,8 @@
 # Watchlist Bot -  DevOps Final Project
 
+## Test Status
+![Testing](https://github.com/cs220s26/LiamRanaIsaac/actions/workflows/tests.yml/badge.svg)
+
 ## Overview
 This project demonstrates DevOps practices applied to a pre-existing Java Discord bot (Watchlist Bot) from CSCI 244. The bot itself allows Discord users to manage a personal watchlist of movies and TV shows through a conversational interface, but the focus of this project is the full DevOps pipeline surrounding it:
 
