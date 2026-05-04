@@ -15,6 +15,6 @@ jobs:
           key: ${{ secrets.LABSUSERPEM }}
           script: |
             cd /LiamRanaIsaac
-            ./scripts/redeploy.sh
+            sudo ./scripts/redeploy.sh
 
 
