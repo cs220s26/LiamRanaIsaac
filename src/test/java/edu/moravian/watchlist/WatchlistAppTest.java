@@ -31,7 +31,7 @@ class WatchlistAppTest {
         // Movie: title, rating, genre, platform, release, runtime, director
         Movie m = new Movie("Test Movie", "5.0", "Action", "Netflix", "2023", "100", "Director X");
 
-        app.addMedia(m);
+        app.addMovie(m);
 
         List<Media> result = app.getWatchlist();
 
