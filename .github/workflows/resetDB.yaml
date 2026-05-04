@@ -15,4 +15,4 @@ jobs:
           key: ${{ secrets.LABSUSERPEM }}
           script: |
             cd /LiamRanaIsaac
-            ./scripts/resetDB.sh
+            sudo bash /LiamRanaIsaac/scripts/resetDB.sh

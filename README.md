@@ -61,8 +61,9 @@ This project applies DevOps practices to a pre-existing Java Discord bot origina
 - Java 21
 - Maven
 - Redis running locally on port 6379
-- AWS credentials configured (`~/.aws/credentials`) with `secretsmanager:GetSecretValue` permission
-- Discord bot token stored in AWS Secrets Manager (`us-east-1`)
+- Discord bot token available via one of the two methods below (tried in order):
+  1. **AWS Secrets Manager** — AWS credentials configured (`~/.aws/credentials`) with `secretsmanager:GetSecretValue` permission, and the token stored as `220_Discord_Token` in `us-east-1`
+  2. **`.env` file (local dev fallback)** — if AWS credentials are not set up, create a `.env` file in the project root with `DISCORD_TOKEN=<your-token>`
 
 ### Steps
 
@@ -106,7 +107,7 @@ This project applies DevOps practices to a pre-existing Java Discord bot origina
    ./scripts/resetDB.sh
    ```
 
-> **Note:** The bot loads its Discord token from AWS Secrets Manager, not a `.env` file. Local AWS credentials must be configured before running.
+> **Note:** The bot first tries AWS Secrets Manager for the Discord token. If that fails (e.g. no local AWS credentials), it falls back to a `.env` file in the project root. For quick local dev without AWS set up, a `.env` file with `DISCORD_TOKEN=<your-token>` is sufficient.
 
 ---
 

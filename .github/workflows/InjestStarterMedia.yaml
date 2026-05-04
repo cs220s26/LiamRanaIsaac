@@ -15,4 +15,4 @@ jobs:
           key: ${{ secrets.LABSUSERPEM }}
           script: |
             cd /LiamRanaIsaac
-            ./scripts/addStarterMedia.sh
+            sudo bash /LiamRanaIsaac/scripts/addStarterMedia.sh
