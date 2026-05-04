@@ -1,6 +1,6 @@
 # Watchlist Bot — DevOps Final Project
 
-![Testing](https://github.com/cs220s26/LiamRanaIsaac/actions/workflows/tests.yaml/badge.svg)
+![Testing](https://github.com/cs220s26/LiamRanaIsaac/actions/workflows/tests.yaml/badge.svg) ![Deploy Status](https://github.com/cs220s26/LiamRanaIsaac/actions/workflows/redeploy.yaml/badge.svg)
 
 A Discord bot for managing personal movie and TV show watchlists, wrapped in a full DevOps pipeline for the CSCI 220 final project.
 
