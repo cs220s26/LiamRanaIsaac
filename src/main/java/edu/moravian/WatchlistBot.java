@@ -42,7 +42,7 @@ public class WatchlistBot {
             } catch (TokenNotFound e) {
                 System.out.println(e.getMessage());
             }
-        } 
+        }
 
 
         JDA api = JDABuilder.createDefault(token).enableIntents(GatewayIntent.MESSAGE_CONTENT).build();
