@@ -26,7 +26,7 @@ TYPE=$1
 TITLE=$2
 
 # Get the ID
-ID=$(redis-cli INCR media:counter)
+ID=$(redis6-cli INCR media:counter)
 
 if [ "$TYPE" == "movie" ]; then
      # the boolean is if the value is numeric or not (helpful for the loop)
@@ -38,7 +38,7 @@ if [ "$TYPE" == "movie" ]; then
         "director" "$7" "false"
         "runtime"  "$8" "true"
     )
-    redis-cli SADD "watchlist:movie" "$ID" > /dev/null
+    redis6-cli SADD "watchlist:movie" "$ID" > /dev/null
 
 elif [ "$TYPE" == "show" ]; then
     params=(
@@ -49,33 +49,33 @@ elif [ "$TYPE" == "show" ]; then
         "end"      "$7" "present_check"
         "seasons"  "$8" "true"
     )
-    redis-cli SADD "watchlist:show" "$ID" > /dev/null
+    redis6-cli SADD "watchlist:show" "$ID" > /dev/null
 fi
 
-redis-cli HSET "media:$ID" title "$TITLE" type "$TYPE" > /dev/null
+redis6-cli HSET "media:$ID" title "$TITLE" type "$TYPE" > /dev/null
 
 for (( i=0; i<${#params[@]}; i+=3 )); do
     FIELD=${params[$i]}
     VALUE=${params[$i+1]}
     IS_NUM=${params[$i+2]}
 
-    redis-cli HSET "media:$ID" "$FIELD" "$VALUE" > /dev/null
+    redis6-cli HSET "media:$ID" "$FIELD" "$VALUE" > /dev/null
 
     if [ "$IS_NUM" == "true" ]; then
-      redis-cli ZADD "has:$FIELD" "$VALUE" "$ID" > /dev/null
+      redis6-cli ZADD "has:$FIELD" "$VALUE" "$ID" > /dev/null
     elif [ "$IS_NUM" == "present_check" ]; then
       shopt -s nocasematch
       if [[ "$VALUE" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-        redis-cli ZADD "has:$FIELD" "$VALUE" "$ID" > /dev/null
+        redis6-cli ZADD "has:$FIELD" "$VALUE" "$ID" > /dev/null
       fi
       shopt -u nocasematch
 
     else
         LOWER_VAL=$(echo "$VALUE" | tr '[:upper:]' '[:lower:]')
-        redis-cli SADD "has:$FIELD:$LOWER_VAL" "$ID" > /dev/null
+        redis6-cli SADD "has:$FIELD:$LOWER_VAL" "$ID" > /dev/null
     fi
 done
 
-redis-cli LPUSH "watchlist" "$ID" > /dev/null
+redis6-cli LPUSH "watchlist" "$ID" > /dev/null
 
 echo "$TITLE added as media: $ID"
