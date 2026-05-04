@@ -2,6 +2,8 @@
 
 echo -e "Starting bulk import of media items... \n"
 
+cd /LiamRanaIsaac/scripts
+
 # --- MOVIES ---
 ./addMediaDB.sh movie "Inception" "9.0" "Sci-Fi" "Netflix" "2010" "Christopher Nolan" "148"
 ./addMediaDB.sh movie "The Dark Knight" "9.5" "Action" "Max" "2008" "Christopher Nolan" "152"
