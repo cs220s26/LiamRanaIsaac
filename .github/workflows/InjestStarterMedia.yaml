@@ -1,4 +1,4 @@
-name: Redeploy on AWS
+name: Injest Starter Media
 
 on:
   workflow_dispatch: # This has to be triggered manually
