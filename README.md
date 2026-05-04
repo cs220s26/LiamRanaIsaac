@@ -12,7 +12,6 @@ This project demonstrates DevOps practices applied to a pre-existing Java Discor
 - **CD** - on demand automated redeployment to EC2 via GitHub Actions
 
 
-
 ## Dev Setup/Execution
 ### Prerequisites
 - Java 21
