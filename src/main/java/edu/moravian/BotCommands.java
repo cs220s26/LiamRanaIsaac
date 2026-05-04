@@ -22,7 +22,7 @@ public class BotCommands {
                     return startSuggestMediaDialogue(username);
                 case "!status":
                     return retrieveStatus(username);
-                case "!help":
+                case "!helk":
                     return listCommands();
                 default:
                     return handleDialogue(username,msg);
