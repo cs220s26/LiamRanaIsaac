@@ -1,0 +1,18 @@
+name: Redeploy on AWS
+
+on:
+  workflow_dispatch: # This has to be triggered manually
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ssh-pipeline
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 54.242.97.20
+          username: ec2-user
+          key: ${{ secrets.LABSUSERPEM }}
+          script: |
+            cd /LiamRanaIsaac
+            ./scripts/resetDB.sh
