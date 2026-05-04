@@ -1,26 +1,67 @@
-# Watchlist Bot -  DevOps Final Project
+# Watchlist Bot — DevOps Final Project
 
-## Test Status
 ![Testing](https://github.com/cs220s26/LiamRanaIsaac/actions/workflows/tests.yml/badge.svg)
 
+A Discord bot for managing personal movie and TV show watchlists, wrapped in a full DevOps pipeline for the CSCI 220 final project.
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Bot Commands](#bot-commands)
+- [Dev Setup](#dev-setup)
+- [Prod Setup](#prod-setup)
+- [CI/CD](#cicd)
+- [Technologies](#technologies)
+- [Contributors](#contributors)
+- [References](#references)
+
+---
+
 ## Overview
-This project demonstrates DevOps practices applied to a pre-existing Java Discord bot (Watchlist Bot) from CSCI 244. The bot itself allows Discord users to manage a personal watchlist of movies and TV shows through a conversational interface, but the focus of this project is the full DevOps pipeline surrounding it:
 
-- Source control with **Git and GitHub** (within the cs220s26 organization)
-- Build automation and static analysis with **Maven** (Checkstyle + fat JAR packaging)
-- Secrets management via **AWS Secrets Manager** (replacing `.env` files)
-- Database state management with **Redis** setup scripts
-- Production deployment on **AWS EC2** managed by **SystemD**
-- **CI** - automated testing and static analysis on every push via GitHub Actions
-- **CD** - on demand automated redeployment to EC2 via GitHub Actions
+This project applies DevOps practices to a pre-existing Java Discord bot originally built for CSCI 244. The bot lets Discord users manage a personal watchlist through a conversational interface — the focus here is the pipeline surrounding it:
 
+| Practice | Tool |
+|---|---|
+| Source control | Git + GitHub (cs220s26 org) |
+| Build & static analysis | Maven (Checkstyle + fat JAR) |
+| Secrets management | AWS Secrets Manager |
+| Database | Redis + setup scripts |
+| Production hosting | AWS EC2 + SystemD |
+| Continuous Integration | GitHub Actions (every push) |
+| Continuous Deployment | GitHub Actions (manual trigger) |
 
-## Dev Setup/Execution
+---
+
+## Architecture
+
+![Architecture Diagram](UML.png)
+
+---
+
+## Bot Commands
+
+| Command | Description |
+|---|---|
+| `!watchlist` | View your watchlist (optionally filter by Movie/Show) |
+| `!add` | Add a new Movie or TV Show to your watchlist |
+| `!suggest` | Filter your watchlist to find your next watch |
+| `!status` | Check your current dialogue state |
+| `!help` | List all available commands |
+
+---
+
+## Dev Setup
+
 ### Prerequisites
+
 - Java 21
 - Maven
 - Redis running locally on port 6379
-- AWS credentials configured locally (`~/.aws/credentials`) with `secretsmanager:GetSecretValue` permission
+- AWS credentials configured (`~/.aws/credentials`) with `secretsmanager:GetSecretValue` permission
 - Discord bot token stored in AWS Secrets Manager (`us-east-1`)
 
 ### Steps
@@ -40,7 +81,7 @@ This project demonstrates DevOps practices applied to a pre-existing Java Discor
    sudo systemctl start redis
    ```
 
-3. **Build the project** — this runs Checkstyle and compiles, then packages a fat JAR
+3. **Build** — runs Checkstyle, compiles, and packages a fat JAR
    ```bash
    mvn clean package
    ```
@@ -50,153 +91,128 @@ This project demonstrates DevOps practices applied to a pre-existing Java Discor
    java -jar target/WatchlistBot-1.0.0-jar-with-dependencies.jar
    ```
 
-5. **(Optional) Reset Redis to a clean empty state**
+5. **(Optional) Load starter media into Redis**
+   ```bash
+   ./scripts/addStarterMedia.sh
+   ```
+
+6. **(Optional) Reset Redis to a clean empty state**
    ```bash
    ./scripts/resetDB.sh
    ```
 
-> **Note:** The bot loads its Discord token from AWS Secrets Manager (not a `.env` file). Local AWS credentials must be configured before running.
+> **Note:** The bot loads its Discord token from AWS Secrets Manager, not a `.env` file. Local AWS credentials must be configured before running.
 
 ---
 
+## Prod Setup
 
-## Prod Setup/Execution
-Production runs on an **AWS EC2** instance. The setup is fully automated via `scripts/userdata.sh`.
+Production runs on an **AWS EC2** instance. Initial setup is fully automated via `scripts/userdata.sh`.
 
-### Steps
+### First-Time Launch
 
-1. **Launch an EC2 instance** (Amazon Linux 2, `t2.micro` or larger).
-   - Attach an **IAM role** with `secretsmanager:GetSecretValue` permission.
-   - Paste the contents of `scripts/userdata.sh` into the **User Data** field (Advanced Details).
+1. **Launch an EC2 instance** (Amazon Linux 2, `t2.micro` or larger)
+   - Attach an **IAM role** with `secretsmanager:GetSecretValue` permission
+   - Paste the contents of `scripts/userdata.sh` into the **User Data** field under Advanced Details
 
-   The `userdata.sh` script automatically:
-   - Updates the system packages
+   The script automatically:
+   - Updates system packages
    - Installs Git, Redis 6, Maven, and Amazon Corretto 21
    - Clones the repository to `/LiamRanaIsaac`
-   - Starts and enables the Redis service
+   - Starts and enables Redis
    - Builds the project (`mvn clean package`)
-   - Copies `watchlistbot.service` to `/etc/systemd/system/`
-   - Enables and starts the bot as a SystemD service
+   - Registers and starts the bot as a SystemD service
 
 2. **Verify the service is running**
    ```bash
    sudo systemctl status watchlistbot
    ```
 
-3. **To manually redeploy** (pull latest + rebuild + restart):
-   ```bash
-   ./scripts/redeploy.sh
-   ```
+### Ongoing Operations
 
-4. **To reset Redis to a clean state:**
-   ```bash
-   ./scripts/resetDB.sh
-   ```
+| Task | Command |
+|---|---|
+| Redeploy latest code | `./scripts/redeploy.sh` |
+| Reset Redis | `./scripts/resetDB.sh` |
+| Load starter media | `./scripts/addStarterMedia.sh` |
+
+`redeploy.sh` runs `git pull origin main` → `mvn clean package` → `systemctl restart watchlistbot`.
 
 ---
 
+## CI/CD
 
-## CI/CD Setup
+### Workflows
 
-### Workflow Files
+All four workflows live in `.github/workflows/`:
 
-Both workflows live in `.github/workflows/` and are already committed to the repo:
-
-| File | Trigger | Purpose |
+| File | Trigger | What it does |
 |---|---|---|
 | `tests.yaml` | Every `git push` | Runs Checkstyle + JUnit tests |
-| `redeploy.yaml` | Manual (`workflow_dispatch`) | SSH redeploy to EC2 |
+| `redeploy.yaml` | Manual | SSH into EC2 and run `redeploy.sh` |
+| `InjestStarterMedia.yaml` | Manual | SSH into EC2 and run `addStarterMedia.sh` |
+| `resetDB.yaml` | Manual | SSH into EC2 and run `resetDB.sh` |
 
-### GitHub Secrets Configuration
+### GitHub Secrets
 
-The CD workflow authenticates to EC2 using an SSH key stored as a GitHub Secret.
+The SSH-based workflows authenticate using a secret stored in the repository:
 
 1. Download your AWS Lab `.pem` private key file.
-2. In your GitHub repository, go to **Settings → Secrets and variables → Actions → New repository secret**.
-3. Name the secret **`LABSUSERPEM`** and paste the full contents of your `.pem` file as the value.
+2. Go to **Settings → Secrets and variables → Actions → New repository secret**.
+3. Name it **`LABSUSERPEM`** and paste the full `.pem` contents as the value.
 
-### CD Workflow — Host Configuration
+### How CI Works
 
-Update the `host` field in `.github/workflows/redeploy.yaml` with your EC2 instance's public DNS or IP address:
+On every push, GitHub Actions:
+1. Spins up an `ubuntu-latest` runner with Java 21 (Amazon Corretto) and Maven caching.
+2. Runs `mvn test`, which validates Checkstyle, compiles, and runs all JUnit 5 tests.
+3. Marks the workflow failed (blocking merges) on any violation or test failure.
 
-```yaml
-host: <your-ec2-public-dns-here>
-```
+### How CD Works
 
----
-
-
-## CI/CD Execution
-
-### CI — Continuous Integration
-
-**Trigger:** Automatically on every `git push` to any branch.
-
-**What happens:**
-1. GitHub Actions spins up an `ubuntu-latest` runner.
-2. Java 21 (Amazon Corretto) is configured with Maven dependency caching.
-3. `mvn test` runs, which:
-   - Executes **Checkstyle** during the `validate` phase — the build fails on any style violation.
-   - Compiles all source code.
-   - Runs all **JUnit 5** unit tests.
-4. A failing step marks the workflow as failed and blocks merging.
-
-### CD — Continuous Deployment
-
-**Trigger:** Manually — navigate to the **Actions** tab in GitHub, select `Redeploy on AWS`, and click **"Run workflow"**.
-
-**What happens:**
-1. GitHub Actions spins up an `ubuntu-latest` runner.
-2. The runner SSHes into the EC2 instance using the `LABSUSERPEM` secret.
-3. `scripts/redeploy.sh` runs on the EC2 instance:
-   - `git pull origin main` — fetches the latest code.
-   - `mvn clean package` — rebuilds the fat JAR with all dependencies.
-   - `systemctl restart watchlistbot` — restarts the SystemD service with the new build.
+Triggered manually from the **Actions** tab:
+1. GitHub Actions SSHes into EC2 using `LABSUSERPEM`.
+2. Runs the relevant script on the remote instance.
 
 ---
 
-## Technologies Used
+## Technologies
 
-| Technology | Purpose | Link |
-|---|---|---|
-| Java 21 (Amazon Corretto) | Primary application language | https://aws.amazon.com/corretto/ |
-| Maven | Build automation, dependency management | https://maven.apache.org/ |
-| Checkstyle | Static code analysis via Maven | https://checkstyle.sourceforge.io/ |
-| JUnit 5 | Unit testing framework | https://junit.org/junit5/ |
-| Git / GitHub | Version control and CI/CD hosting | https://github.com/ |
-| GitHub Actions | CI/CD pipeline automation | https://docs.github.com/en/actions |
-| AWS EC2 | Cloud production server | https://aws.amazon.com/ec2/ |
-| AWS Secrets Manager | Secure token/credential storage | https://aws.amazon.com/secrets-manager/ |
-| AWS SDK for Java v2 | Secrets Manager client library | https://aws.amazon.com/sdk-for-java/ |
-| SystemD | Linux service manager for the bot process | https://systemd.io/ |
-| Redis | Key-value database (production persistence) | https://redis.io/ |
-| Jedis | Java client for Redis | https://github.com/redis/jedis |
-| JDA (Java Discord API) | Discord bot framework (the application) | https://github.com/discord-jda/JDA |
-
----
-
-
-
-## Background
-
-Sources consulted while implementing the DevOps pipeline:
-
-- **GitHub Actions — setup-java action** — https://github.com/actions/setup-java
-- **GitHub Actions — appleboy/ssh-action (SSH deploy)** — https://github.com/appleboy/ssh-action
-- **GitHub Actions — storing secrets** — https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions
-- **Maven Assembly Plugin (fat JAR packaging)** — https://maven.apache.org/plugins/maven-assembly-plugin/usage.html
-- **Maven Checkstyle Plugin** — https://maven.apache.org/plugins/maven-checkstyle-plugin/usage.html
-- **AWS Secrets Manager — retrieving secrets in Java** — https://docs.aws.amazon.com/secretsmanager/latest/userguide/retrieving-secrets_cache-java.html
-- **SystemD service unit file reference** — https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html
-- **EC2 User Data scripts** — https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html
-- **Redis — getting started** — https://redis.io/docs/latest/get-started/
-- **Jedis — getting started** — https://github.com/redis/jedis/wiki/Getting-started
+| Technology | Purpose |
+|---|---|
+| Java 21 (Amazon Corretto) | Primary application language |
+| Maven | Build automation and dependency management |
+| Checkstyle | Static code analysis |
+| JUnit 5 | Unit testing |
+| Git / GitHub | Version control and CI/CD hosting |
+| GitHub Actions | CI/CD pipeline automation |
+| AWS EC2 | Cloud production server |
+| AWS Secrets Manager | Secure token/credential storage |
+| AWS SDK for Java v2 | Secrets Manager client library |
+| SystemD | Linux service manager |
+| Redis | Key-value store for watchlist persistence |
+| Jedis | Java Redis client |
+| JDA (Java Discord API) | Discord bot framework |
 
 ---
 
+## Contributors
 
-## Contributors:
+- Liam Kerr
+- Rana Yum
+- Isaac Nunez
 
-* Liam Kerr
-* Rana Yum
-* Isaac Nunez
+---
+
+## References
+
+- [GitHub Actions — setup-java](https://github.com/actions/setup-java)
+- [GitHub Actions — appleboy/ssh-action](https://github.com/appleboy/ssh-action)
+- [GitHub Actions — storing secrets](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions)
+- [Maven Assembly Plugin (fat JAR)](https://maven.apache.org/plugins/maven-assembly-plugin/usage.html)
+- [Maven Checkstyle Plugin](https://maven.apache.org/plugins/maven-checkstyle-plugin/usage.html)
+- [AWS Secrets Manager — Java retrieval](https://docs.aws.amazon.com/secretsmanager/latest/userguide/retrieving-secrets_cache-java.html)
+- [SystemD service unit file reference](https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html)
+- [EC2 User Data scripts](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html)
+- [Redis — getting started](https://redis.io/docs/latest/get-started/)
+- [Jedis — getting started](https://github.com/redis/jedis/wiki/Getting-started)
