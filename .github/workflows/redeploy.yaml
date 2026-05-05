@@ -16,3 +16,6 @@ jobs:
           script: |
             cd /LiamRanaIsaac
             sudo bash /LiamRanaIsaac/scripts/redeploy.sh
+
+
+
