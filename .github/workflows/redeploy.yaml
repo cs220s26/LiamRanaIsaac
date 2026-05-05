@@ -14,8 +14,4 @@ jobs:
           username: ec2-user
           key: ${{ secrets.LABSUSERPEM }}
           script: |
-            cd /LiamRanaIsaac
-            sudo bash /LiamRanaIsaac/scripts/redeploy.sh
-
-
-
+            bash /LiamRanaIsaac/scripts/redeploy.sh
